@@ -1,6 +1,6 @@
 <template>
   <div id="app">
-    <div class="content" key="borad.arrangment[board.arrangment.length - 1]">
+    <div class="content">
       <div
         class="board"
         v-for="(arrang, height) in board.arrangement[
@@ -57,15 +57,8 @@
 </style>
 
 <script>
-
 export default {
   name: "app",
-  data() {
-    return {
-      height:0,
-      weight:0
-    }
-  },
   computed: {
     board() {
       return this.$store.state.othello;
@@ -73,11 +66,9 @@ export default {
   },
   methods: {
     putPiece: function(height, width) {
-      this.height = height
-      this.width = width
       this.$store.dispatch("putPiece", {
-        height: this.height,
-        width: this.width
+        height: height,
+        width: width
       });
     },
     pieceCalc: function(pieceNum) {
