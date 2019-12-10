@@ -3,9 +3,12 @@ import Vuex from "vuex";
 
 Vue.use(Vuex);
 
-export default new Vuex.Store({
+const othello = {
   state: {},
   mutations: {},
-  actions: {},
-  modules: {}
+  actions: {}
+};
+
+export default new Vuex.Store({
+  modules: { othello }
 });
