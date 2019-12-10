@@ -1,14 +1,20 @@
 <template>
   <div id="app">
-    <p>hello</p>
     <div class="content">
       <div
         class="board"
-        v-for="arrang in board.arrangement"
-        v-bind:key="arrang"
+        v-for="(arrang, height) in board.arrangement[
+          board.arrangement.length - 1
+        ]"
+        v-bind:key="height"
       >
-        <div class="piece" v-for="piece in arrang" v-bind:key="piece">
-          <div v-bind:class="pieceCalc(piece)"></div>
+        <div class="piece" v-for="(piece, width) in arrang" v-bind:key="width">
+          <div
+            v-bind:class="pieceCalc(piece)"
+            v-on:click="putPiece(height, width)"
+          >
+            {{ height }},{{ width }}
+          </div>
         </div>
       </div>
     </div>
@@ -17,8 +23,8 @@
 
 <style>
 .content {
-  height: 528px;
-  width: 528px;
+  height: 400px;
+  width: 400px;
   border: thick solid black;
 }
 
@@ -26,24 +32,27 @@
   display: flex;
 }
 .piece {
+  display: block;
   background: #009966;
-  width: 64px;
-  height: 64px;
+  width: 48px;
+  height: 48px;
   border: 1px solid white;
 }
 
 .whitepiece {
-  width: 64px;
-  height: 64px;
+  width: 44px;
+  height: 44px;
   background: white;
   border-radius: 50%;
+  margin: 2px auto;
 }
 
 .blackpiece {
-    width: 64px;
-  height: 64px;
+  width: 44px;
+  height: 44px;
   background: black;
   border-radius: 50%;
+  margin: 2px auto;
 }
 </style>
 
@@ -56,13 +65,19 @@ export default {
     };
   },
   methods: {
+    putPiece: function(height, width) {
+      this.$store.dispatch("putPiece", {
+        height: height,
+        width: width
+      });
+    },
     pieceCalc: function(pieceNum) {
       if (pieceNum === 0) {
         return "";
       }
 
       if (pieceNum === 1) {
-        return "whitepiece"
+        return "whitepiece";
       }
 
       if (pieceNum === -1) {
