@@ -2,10 +2,9 @@ import Vue from "vue";
 import Vuex from "vuex";
 
 Vue.use(Vuex);
-
-const calcArrangment = (height, width, player, arrangement) => {
-  //横の駒を右から検索
-  const calcRightIndex = arrangement[height]
+//横の計算をする関数
+const calcSideIndex = (width, player, arrangement) => {
+  const calcRightIndex = arrangement
     .slice(width, 8)
     .map((_, index, self) => {
       if (self[index] === player) {
@@ -13,12 +12,7 @@ const calcArrangment = (height, width, player, arrangement) => {
       }
     })
     .filter(i => i !== undefined);
-  console.log("right", calcRightIndex);
-  if (calcRightIndex.length !== 0) {
-    arrangement[height].fill(player, width, calcRightIndex[0]);
-  }
-
-  const calcLeftIndex = arrangement[height]
+  const calcLeftIndex = arrangement
     .slice(0, width)
     .map((_, index, self) => {
       if (self[index] === player) {
@@ -26,11 +20,56 @@ const calcArrangment = (height, width, player, arrangement) => {
       }
     })
     .filter(i => i !== undefined);
+  return { right: calcRightIndex[0], left: calcLeftIndex[0] };
+};
 
-  console.log("left", calcLeftIndex);
-  if (calcLeftIndex.length !== 0) {
-    arrangement[height].fill(player, calcLeftIndex[0], width);
+const calcTopAndBottom = (height, width, player, arrangement) => {
+  let topIndex = undefined;
+  for (let i = height; 0 <= i; i--) {
+    if (arrangement[i][width] === player) {
+      topIndex = i;
+      break;
+    }
   }
+
+  let bottomIndex = undefined;
+  for (let i = height; i < 8; i++) {
+    if (arrangement[i][width] === player) {
+      bottomIndex = i;
+      break;
+    }
+  }
+  return { top: topIndex, bottom: bottomIndex };
+};
+
+const calcArrangment = (height, width, player, arrangement) => {
+  const sideIndex = calcSideIndex(width, player, arrangement[height]);
+  if (sideIndex.right !== undefined) {
+    arrangement[height].fill(player, width, sideIndex.right);
+  }
+
+  if (sideIndex.left !== undefined) {
+    arrangement[height].fill(player, sideIndex.left, width);
+  }
+
+  const topAndBottomIndex = calcTopAndBottom(
+    height,
+    width,
+    player,
+    arrangement
+  );
+  console.log(topAndBottomIndex);
+  if (topAndBottomIndex.top !== undefined) {
+    for (let i = height; topAndBottomIndex.top <= i; i--) {
+      arrangement[i][width] = player;
+    }
+  }
+
+  if (topAndBottomIndex.bottom !== undefined) {
+    for (let i = height; i < topAndBottomIndex.bottom; i++)
+      arrangement[i][width] = player;
+  }
+
   return arrangement;
 };
 
