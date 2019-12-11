@@ -1,19 +1,20 @@
 <template>
   <div id="app">
     {{ player === 1 ? "白の番です。" : "黒の番です。" }}
+    <p>黒:{{blackPiece}} - 白:{{whitePiece}}</p>
     <div class="content">
       <div class="board" v-for="(arrang, height) in board" v-bind:key="height">
         <div class="piece" v-for="(piece, width) in arrang" v-bind:key="width">
           <div
-            v-bind:class="pieceCalc(piece)"
-            v-on:click="putPiece(height, width)"
+            v-bind:class="piecePrint(piece)"
+            v-on:click="putPiece(height, width);pieceCalc()"
           >
             {{ height }},{{ width }}
           </div>
         </div>
       </div>
     </div>
-    <button>Pass</button>
+    <button v-on:click="pass">Pass</button>
   </div>
 </template>
 
@@ -57,7 +58,9 @@ export default {
   name: "app",
   data() {
     return {
-      player: 1
+      player: 1,
+      blackPiece: 2,
+      whitePiece: 2
     };
   },
   watch: {
@@ -87,7 +90,7 @@ export default {
         player: this.player
       });
     },
-    pieceCalc: function(pieceNum) {
+    piecePrint: function(pieceNum) {
       if (pieceNum === 0) {
         return "";
       }
@@ -99,6 +102,13 @@ export default {
       if (pieceNum === -1) {
         return "blackpiece";
       }
+    },
+    pass: function() {
+      this.player = -this.player;
+    },
+    pieceCalc: function() {
+      this.backPiece = this.board.flat().filter(i => i === -1).length;
+      this.whitePiece = this.board.flat().filter(i => i === 1).length;
     }
   }
 };
