@@ -1,5 +1,6 @@
 <template>
   <div id="app">
+    {{ player === 1 ? "白の番です。" : "黒の番です。" }}
     <div class="content">
       <div class="board" v-for="(arrang, height) in board" v-bind:key="height">
         <div class="piece" v-for="(piece, width) in arrang" v-bind:key="width">
@@ -12,6 +13,7 @@
         </div>
       </div>
     </div>
+    <button>Pass</button>
   </div>
 </template>
 
@@ -53,6 +55,19 @@
 <script>
 export default {
   name: "app",
+  data() {
+    return {
+      player: 1
+    };
+  },
+  watch: {
+    board: {
+      handler: function() {
+        this.player = -this.player;
+      },
+      deep: true
+    }
+  },
   computed: {
     board() {
       return this.$store.state.othello.arrangement[
@@ -68,7 +83,8 @@ export default {
       }
       this.$store.dispatch("putPiece", {
         height: height,
-        width: width
+        width: width,
+        player: this.player
       });
     },
     pieceCalc: function(pieceNum) {

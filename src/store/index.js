@@ -1,7 +1,17 @@
 import Vue from "vue";
 import Vuex from "vuex";
-
 Vue.use(Vuex);
+
+const arrayDiff = (arr, arr2) => {
+  const arrayFalt = arr.flat();
+  const array2Falt = arr2.flat();
+  for (let i = 0; i < arrayFalt.length; i++) {
+    if (arrayFalt[i] !== array2Falt[i]) {
+      return true;
+    }
+  }
+  return false;
+};
 //横の計算をする関数
 const calcSideIndex = (width, player, arrangement) => {
   let rightIndex = undefined;
@@ -17,7 +27,6 @@ const calcSideIndex = (width, player, arrangement) => {
 
   let leftIndex = undefined;
   for (let i = width - 1; 0 <= i; i--) {
-    console.log(i, arrangement[i]);
     if (arrangement[i] === -player) {
       if (arrangement[i - 1] === player) {
         leftIndex = i;
@@ -58,35 +67,30 @@ const calcTopAndBottom = (height, width, player, arrangement) => {
 
 const calcArrangment = (height, width, player, arrangement) => {
   //既存の配列を変更したくないため新たな配列を作成
-  let newArrangement = arrangement.slice(0, arrangement.length);
   let sideIndex = calcSideIndex(width, player, arrangement[height]);
 
   if (sideIndex.right !== undefined) {
-    newArrangement[height].fill(player, width, sideIndex.right);
+    arrangement[height].fill(player, width, sideIndex.right);
   }
 
   if (sideIndex.left !== undefined) {
     //width+1は置いた駒の位置を含める
-    newArrangement[height].fill(player, sideIndex.left, width + 1);
+    arrangement[height].fill(player, sideIndex.left, width + 1);
   }
 
   let topAndBottomIndex = calcTopAndBottom(height, width, player, arrangement);
-  console.log(topAndBottomIndex);
   if (topAndBottomIndex.top !== undefined) {
     for (let i = height; topAndBottomIndex.top <= i; i--) {
-      newArrangement[i][width] = player;
+      arrangement[i][width] = player;
     }
   }
 
   if (topAndBottomIndex.bottom !== undefined) {
     for (let i = height; i < topAndBottomIndex.bottom; i++)
-      newArrangement[i][width] = player;
+      arrangement[i][width] = player;
   }
-  return newArrangement;
-};
 
-const changeArrangement = (height, width, player, arrangement) => {
-  return calcArrangment(height, width, player, arrangement);
+  return arrangement;
 };
 
 const othello = {
@@ -111,13 +115,23 @@ const othello = {
   },
   actions: {
     putPiece({ commit, state }, data) {
-      const newArrangement = changeArrangement(
+      const arrangement = state.arrangement[
+        state.arrangement.length - 1
+      ].map(i => Array.from(i));
+      const newArrangement = calcArrangment(
         data.height,
         data.width,
-        1,
-        state.arrangement[state.arrangement.length - 1]
+        data.player,
+        arrangement
       );
-      commit("updateArrangement", newArrangement);
+      if (
+        arrayDiff(
+          newArrangement,
+          state.arrangement[state.arrangement.length - 1]
+        )
+      ) {
+        commit("updateArrangement", newArrangement);
+      }
     }
   }
 };
