@@ -1,13 +1,7 @@
 <template>
   <div id="app">
     <div class="content">
-      <div
-        class="board"
-        v-for="(arrang, height) in board.arrangement[
-          board.arrangement.length - 1
-        ]"
-        v-bind:key="height"
-      >
+      <div class="board" v-for="(arrang, height) in board" v-bind:key="height">
         <div class="piece" v-for="(piece, width) in arrang" v-bind:key="width">
           <div
             v-bind:class="pieceCalc(piece)"
@@ -61,11 +55,17 @@ export default {
   name: "app",
   computed: {
     board() {
-      return this.$store.state.othello;
+      return this.$store.state.othello.arrangement[
+        this.$store.state.othello.arrangement.length - 1
+      ];
     }
   },
   methods: {
     putPiece: function(height, width) {
+      if (this.board[height][width] !== 0) {
+        alert("そこには置けません");
+        return;
+      }
       this.$store.dispatch("putPiece", {
         height: height,
         width: width

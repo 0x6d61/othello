@@ -4,46 +4,52 @@ import Vuex from "vuex";
 Vue.use(Vuex);
 //横の計算をする関数
 const calcSideIndex = (width, player, arrangement) => {
-  console.log(width, arrangement);
   let rightIndex = undefined;
-  for (let i = width + 1; i < 8; i++) {
-    if (arrangement[i] === player && arrangement[i - 1] === -player) {
-      rightIndex = i;
+  for (let i = width + 1; i <= 7; i++) {
+    if (arrangement[i] === -player) {
+      if (arrangement[i + 1] === player) {
+        rightIndex = i + 1;
+      }
+    } else {
       break;
     }
   }
 
   let leftIndex = undefined;
   for (let i = width - 1; 0 <= i; i--) {
-    if (arrangement[i] === player && arrangement[i + 1] === -player) {
-      leftIndex = i;
+    console.log(i, arrangement[i]);
+    if (arrangement[i] === -player) {
+      if (arrangement[i - 1] === player) {
+        leftIndex = i;
+      }
+    } else {
       break;
     }
   }
 
   return { right: rightIndex, left: leftIndex };
 };
-
+//上下の駒を検索する処理
 const calcTopAndBottom = (height, width, player, arrangement) => {
   let topIndex = undefined;
   for (let i = height - 1; 0 <= i; i--) {
-    if (
-      arrangement[i][width] === player &&
-      arrangement[i + 1][width] === -player
-    ) {
-      topIndex = i;
+    if (arrangement[i][width] === -player) {
+      if (arrangement[i - 1][width] === player) {
+        topIndex = i;
+      }
+    } else {
       break;
     }
   }
 
   let bottomIndex = undefined;
-  for (let i = height + 1; i < 8; i++) {
-    console.log(i, width, arrangement[i][width]);
-    if (
-      arrangement[i][width] === player &&
-      arrangement[i - 1][width] === -player
-    ) {
-      bottomIndex = i;
+  for (let i = height + 1; i <= 7; i++) {
+    if (arrangement[i][width] === -player) {
+      if (arrangement[i + 1][width] === player) {
+        //見つかった座標にの次の駒を含める
+        bottomIndex = i + 1;
+      }
+    } else {
       break;
     }
   }
@@ -51,16 +57,17 @@ const calcTopAndBottom = (height, width, player, arrangement) => {
 };
 
 const calcArrangment = (height, width, player, arrangement) => {
+  //既存の配列を変更したくないため新たな配列を作成
   let newArrangement = arrangement.slice(0, arrangement.length);
   let sideIndex = calcSideIndex(width, player, arrangement[height]);
-  console.log(sideIndex);
+
   if (sideIndex.right !== undefined) {
     newArrangement[height].fill(player, width, sideIndex.right);
   }
 
   if (sideIndex.left !== undefined) {
-    console.log(sideIndex.left);
-    newArrangement[height].fill(player, sideIndex.left, width);
+    //width+1は置いた駒の位置を含める
+    newArrangement[height].fill(player, sideIndex.left, width + 1);
   }
 
   let topAndBottomIndex = calcTopAndBottom(height, width, player, arrangement);
@@ -75,18 +82,11 @@ const calcArrangment = (height, width, player, arrangement) => {
     for (let i = height; i < topAndBottomIndex.bottom; i++)
       newArrangement[i][width] = player;
   }
-  console.log(newArrangement);
   return newArrangement;
 };
 
 const changeArrangement = (height, width, player, arrangement) => {
-  //駒が置いてあった場合は配置の変更なし
-  if (arrangement[height][width] !== 0) {
-    return arrangement;
-  }
-  calcArrangment(height, width, player, arrangement);
-  arrangement[height][width] = player;
-  return arrangement;
+  return calcArrangment(height, width, player, arrangement);
 };
 
 const othello = {
@@ -95,10 +95,10 @@ const othello = {
       [
         [0, 0, 0, 0, 0, 0, 0, 0],
         [0, 0, 0, 0, 0, 0, 0, 0],
-        [0, 0, 1, 0, 0, 0, 0, 0],
-        [0, 0, -1, 1, -1, 0, 0, 0],
-        [0, 0, 0, -1, 1, 0, 0, 0],
         [0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 1, -1, 0, 0, 0],
+        [0, 0, 0, -1, 1, 0, 0, 0],
+        [0, 0, 0, 0, -0, 0, 0, 0],
         [0, 0, 0, 0, 0, 0, 0, 0],
         [0, 0, 0, 0, 0, 0, 0, 0]
       ]
