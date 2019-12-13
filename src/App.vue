@@ -1,13 +1,16 @@
 <template>
   <div id="app">
     {{ player === 1 ? "白の番です。" : "黒の番です。" }}
-    <p>黒:{{blackPiece}} - 白:{{whitePiece}}</p>
+    <p>黒:{{ blackPiece }} - 白:{{ whitePiece }}</p>
     <div class="content">
       <div class="board" v-for="(arrang, height) in board" v-bind:key="height">
         <div class="piece" v-for="(piece, width) in arrang" v-bind:key="width">
           <div
             v-bind:class="piecePrint(piece)"
-            v-on:click="putPiece(height, width);pieceCalc()"
+            v-on:click="
+              putPiece(height, width);
+              pieceCalc();
+            "
           >
             {{ height }},{{ width }}
           </div>
@@ -89,6 +92,9 @@ export default {
         width: width,
         player: this.player
       });
+    },
+    putAiPiece: async function(player) {
+      this.$store.dispatch("putAiPiece", player);
     },
     piecePrint: function(pieceNum) {
       if (pieceNum === 0) {

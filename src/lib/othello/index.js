@@ -39,7 +39,6 @@ export const calcSideIndex = (width, player, arrangement) => {
 export const calcTopAndBottom = (height, width, player, arrangement) => {
   let topIndex = undefined;
   for (let i = 1; 0 <= height - i; i++) {
-    console.log(height - i, width);
     if (arrangement[height - i][width] === -player) {
       if (arrangement[height - i - 1][width] === player) {
         topIndex = i;
@@ -66,11 +65,9 @@ export const calcRightSlant = (height, width, player, arrangement) => {
   let rightSlantTop = undefined;
   //横が端についたループ終了
   for (let i = 1; 0 <= height - i; i++) {
-    console.log("righttop", height - i, width + i);
     if (arrangement[height - i][width + i] === -player) {
       if (arrangement[height - i - 1][width + i + 1] === player) {
         rightSlantTop = i;
-        console.log("wei");
       }
     } else {
       break;
@@ -78,7 +75,6 @@ export const calcRightSlant = (height, width, player, arrangement) => {
   }
   let rightSlantBotton = undefined;
   for (let i = 1; height + i <= 7; i++) {
-    console.log("rightbotton", height + i, width - i);
     if (arrangement[height + i][width - i] === -player) {
       if (arrangement[height + i + 1][width - i - 1] === player) {
         rightSlantBotton = i;
@@ -110,56 +106,67 @@ export const calcLeftSlant = (height, width, player, arrangement) => {
   }
   return { leftslanttop: leftSlantTop, leftslantbotton: leftSlantBotton };
 };
+
 export const calcArrangment = (height, width, player, arrangement) => {
-  let sideIndex = calcSideIndex(width, player, arrangement[height]);
+  return Object.assign(
+    calcSideIndex(width, player, arrangement[height]),
+    calcTopAndBottom(height, width, player, arrangement),
+    calcRightSlant(height, width, player, arrangement),
+    calcLeftSlant(height, width, player, arrangement)
+  );
+};
 
-  if (sideIndex.right !== undefined) {
-    arrangement[height].fill(player, width, sideIndex.right);
+export const changeArrangment = (
+  height,
+  width,
+  player,
+  arrangement,
+  movePiece
+) => {
+  if (movePiece.right !== undefined) {
+    arrangement[height].fill(player, width, movePiece.right);
   }
 
-  if (sideIndex.left !== undefined) {
+  if (movePiece.left !== undefined) {
     //width+1は置いた駒の位置を含める
-    arrangement[height].fill(player, sideIndex.left, width + 1);
+    arrangement[height].fill(player, movePiece.left, width + 1);
   }
 
-  let topAndBottomIndex = calcTopAndBottom(height, width, player, arrangement);
-  if (topAndBottomIndex.top !== undefined) {
-    for (let i = 0; i <= topAndBottomIndex.top; i++) {
+  if (movePiece.top !== undefined) {
+    for (let i = 0; i <= movePiece.top; i++) {
       arrangement[height - i][width] = player;
     }
   }
 
-  if (topAndBottomIndex.bottom !== undefined) {
-    for (let i = 0; i < topAndBottomIndex.bottom; i++)
+  if (movePiece.bottom !== undefined) {
+    for (let i = 0; i < movePiece.bottom; i++) {
+      console.log(height);
       arrangement[height + i][width] = player;
+    }
   }
   //右斜め上の駒を埋める
-  let rightSlant = calcRightSlant(height, width, player, arrangement);
-  console.log(rightSlant);
-  if (rightSlant.rightslanttop !== undefined) {
-    for (let i = 0; i <= rightSlant.rightslanttop; i++) {
+  if (movePiece.rightslanttop !== undefined) {
+    for (let i = 0; i <= movePiece.rightslanttop; i++) {
       arrangement[height - i][width + i] = player;
     }
   }
 
   //右斜め下の駒を埋める
-  if (rightSlant.rightslantbotton !== undefined) {
-    for (let i = 0; i <= rightSlant.rightslantbotton; i++) {
+  if (movePiece.rightslantbotton !== undefined) {
+    for (let i = 0; i <= movePiece.rightslantbotton; i++) {
       arrangement[height + i][width - i] = player;
     }
   }
 
   //左斜め上絵の駒を埋める
-  const leftSlant = calcLeftSlant(height, width, player, arrangement);
-  console.log(leftSlant);
-  if (leftSlant.leftslanttop !== undefined) {
-    for (let i = 0; i <= leftSlant.leftslanttop; i++) {
+  if (movePiece.leftslanttop !== undefined) {
+    for (let i = 0; i <= movePiece.leftslanttop; i++) {
       arrangement[height - i][width - i] = player;
     }
   }
   //左斜め下の駒を埋める
-  if (leftSlant.leftslantbotton !== undefined) {
-    for (let i = 0; i <= leftSlant.leftslantbotton; i++) {
+  if (movePiece.leftslantbotton !== undefined) {
+    for (let i = 0; i <= movePiece.leftslantbotton; i++) {
       arrangement[height + i][width + i] = player;
     }
   }
